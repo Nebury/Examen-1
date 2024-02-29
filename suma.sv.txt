@@ -1,0 +1,108 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Universidad del Istmo   
+// Engineer: Luis David Serrano Conde
+// 
+// Create Date: 02/28/2024 12:09:24 AM
+// Design Name: 8 bits
+// Module Name: suma
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+// Módulo para un sumador de 1 bit
+module sumador_1bit(
+    input logic A, B, CIN,    // Entradas A, B y acarreo de entrada
+    output logic S, COUT      // Salidas Suma y acarreo de salida
+);
+
+    // Lógica para la suma de 1 bit
+    assign S = A ^ B ^ CIN;   // Suma (A XOR B XOR CIN)
+    assign COUT = (A & B) | (B & CIN) | (A & CIN);  // Cálculo del acarreo de salida
+
+endmodule
+
+// Módulo para un sumador de 2 bits
+module sumador_2bits(
+    input logic [1:0] A, B,   // Entradas A y B de 2 bits
+    input logic CIN,          // Acarreo de entrada
+    output logic [1:0] SUM,   // Salida de la suma de 2 bits
+    output logic COUT         // Acarreo de salida
+);
+
+    logic co;  // Señal interna para el acarreo
+
+    // Instancias del sumador de 1 bit para cada bit
+    sumador_1bit s1(
+        .A(A[0]), .B(B[0]), .CIN(CIN),
+        .S(SUM[0]), .COUT(co)
+    );
+
+    sumador_1bit s2(
+        .A(A[1]), .B(B[1]), .CIN(co),
+        .S(SUM[1]), .COUT(COUT)
+    );
+
+endmodule
+
+// Módulo para un sumador de 4 bits
+module sumador_4bits(
+    input logic [3:0] A, B,   // Entradas A y B de 4 bits
+    input logic CIN,          // Acarreo de entrada
+    output logic [3:0] SUM,   // Salida de la suma de 4 bits
+    output logic COUT         // Acarreo de salida
+);
+
+    logic [1:0] co;    // Señal interna para el acarreo de salida
+
+    // Instancias del sumador de 2 bits para cada grupo de 2 bits
+    sumador_2bits s1(
+        .A(A[1:0]), .B(B[1:0]),
+        .CIN(CIN),
+        .SUM(SUM[1:0]),
+        .COUT(co[0])
+    );
+
+    sumador_2bits s2(
+        .A(A[3:2]), .B(B[3:2]),
+        .CIN(co[0]),
+        .SUM(SUM[3:2]),
+        .COUT(COUT)
+    );
+
+endmodule
+
+// Módulo para un sumador de 8 bits
+module sumador_8bits(
+    input logic [7:0] A, B,   // Entradas A y B de 8 bits
+    input logic CIN,          // Acarreo de entrada
+    output logic [7:0] SUM,   // Salida de la suma de 8 bits
+    output logic COUT         // Acarreo de salida
+);
+
+    logic [1:0] co;    // Señal interna para el acarreo de salida
+
+    // Instancias del sumador de 4 bits para cada grupo de 4 bits
+    sumador_4bits s1(
+        .A(A[3:0]), .B(B[3:0]),
+        .CIN(CIN),
+        .SUM(SUM[3:0]),
+        .COUT(co[0])
+    );
+
+    sumador_4bits s2(
+        .A(A[7:4]), .B(B[7:4]),
+        .CIN(co[0]),
+        .SUM(SUM[7:4]),
+        .COUT(COUT)
+    );
+
+endmodule
